@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  # push:
+    # branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  code-format:
+    name: Code Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Sync dependencies
+        run: uv sync --all-extras
+
+      - name: Check import sorting (isort)
+        run: uv run isort --check-only --diff .
+
+      - name: Check code formatting (black)
+        run: uv run black --check .
+
+  linting:
+    name: Code Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Sync dependencies
+        run: uv sync --all-extras
+
+      - name: Run pylint (min score 8.5)
+        run: uv run pylint app --fail-under=8.5
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Sync dependencies
+        run: uv sync --all-extras
+
+      - name: Run unit tests
+        run: PYTHONDONTWRITEBYTECODE=1 uv run pytest tests
+        env:
+          # Provide dummy values so app config doesn't fail on import
+          FMCSA_API_KEY: dummy
+          API_KEY: dummy
