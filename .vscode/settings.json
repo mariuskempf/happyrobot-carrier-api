@@ -23,6 +23,7 @@
   "[markdown]": {
     "editor.formatOnSave": true
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": ["fmcsa"]
   // Other
 }

@@ -14,7 +14,6 @@ class Settings(BaseSettings):
 
     * Implements Pydantic-Settings with validation.
     * Supports configuration over environment variables or .env-files (local development).
-    * Bundles settings for all external services used in application (e.g. SAP AI Launchpad).
 
     Note:
         The .env file is only used and read on local development. In production, environment variables should be used.
@@ -36,8 +35,13 @@ class Settings(BaseSettings):
     port: int = 8000
     env: str = "dev"
     version: str = "0.1.0"
-    app_name: str = "SAP AI Launchpad Demo Application"
+    app_name: str = "HappyRobot Inbound Carrier Sales API"
     log_level: str = "INFO"
+
+    fmcsa_api_key: SecretStr
+
+    # dummy API key for POC purposes - used by HappyRobot to authenticate when calling our API
+    api_key: SecretStr
 
 
 @lru_cache
