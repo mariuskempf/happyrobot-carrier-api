@@ -4,8 +4,11 @@ import uvicorn
 
 from app.app import create_app
 from app.core.config import get_settings
+from app.core.log import setup_logging
 
 settings = get_settings()
+
+setup_logging(log_level=settings.log_level)
 
 application = create_app(settings=settings)
 
