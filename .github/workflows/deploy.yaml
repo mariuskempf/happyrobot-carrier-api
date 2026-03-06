@@ -1,5 +1,5 @@
 name: Build & Deploy Application
-run-name: "Deploy · ${{ github.ref_name }} @ ${{ github.sha }} by ${{ github.actor }}"
+run-name: "Deploy · ${{ github.ref_name }} by ${{ github.actor }}"
 
 on:
   push:
