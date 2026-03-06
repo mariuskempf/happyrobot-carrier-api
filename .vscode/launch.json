@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Backend - Python: FastAPI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "LOG_LEVEL": "DEBUG",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "args": ["--host", "127.0.0.1", "--port", "8000"],
+      "justMyCode": false
+    }
+  ]
+}
