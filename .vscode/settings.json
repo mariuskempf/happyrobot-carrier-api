@@ -1,0 +1,28 @@
+{
+  "files.trimTrailingWhitespace": true,
+
+  // Auto-save configuration
+  "files.autoSave": "onFocusChange",
+
+  // Code linting with pylint
+  "pylint.args": ["--rcfile=pyproject.toml"],
+
+  // Sort import statements
+  "isort.args": ["--profile", "black"],
+
+  // Python code formatting
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "black-formatter.args": ["--config", "pyproject.toml"],
+  "[markdown]": {
+    "editor.formatOnSave": true
+  },
+  "editor.formatOnSave": true
+  // Other
+}
