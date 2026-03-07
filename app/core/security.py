@@ -1,21 +1,26 @@
 """Authentication utilities for the HappyRobot Carrier API."""
 
 from fastapi import HTTPException, Security, status
-from fastapi.security import APIKeyHeader
+from fastapi.security import APIKeyHeader, APIKeyQuery
 
 from app.core.config import get_settings
 
+API_KEY_QUERY = APIKeyQuery(name="api_key", auto_error=False)
 API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
-async def verify_api_key(api_key: str = Security(API_KEY_HEADER)) -> str:
-    """Dependency that validates the X-API-Key header.
+async def verify_api_key(
+    api_key_header: str = Security(API_KEY_HEADER),
+    api_key_query: str = Security(API_KEY_QUERY),
+) -> str:
+    """Dependency function to verify the API key provided.
 
-    To be injected into any route or router that requires authentication.
+    Note: It checks for the API key in either the X-API-Key header or
+    the api_key query parameter.
 
     Args:
-        api_key (str, optional): The API key extracted from the X-API-Key header.
-            Defaults to None if the header is missing.
+        api_key_header (str): The API key provided in the X-API-Key header.
+        api_key_query (str): The API key provided in the api_key query parameter.
 
     Raises:
         HTTPException: If the API key is missing or invalid.
@@ -24,6 +29,11 @@ async def verify_api_key(api_key: str = Security(API_KEY_HEADER)) -> str:
         str: The valid API key.
     """
     settings = get_settings()
+
+    api_key = api_key_header or api_key_query
+
+    print(api_key)
+    print(settings.api_key.get_secret_value())
 
     if not api_key or api_key != settings.api_key.get_secret_value():
         raise HTTPException(
