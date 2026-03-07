@@ -1,7 +1,7 @@
 """FMCSA API client for carrier eligibility checks.
 
 This module defines a simple client for interacting with the FMCSA API to check
-carrier eligibility based on MC number or name.
+carrier eligibility based on MC number, USDOT number, or carrier name.
 """
 
 from enum import Enum
@@ -22,17 +22,26 @@ class EligibilityStatus(str, Enum):
     API_ERROR = "api_error"
 
 
+class LookupMethod(str, Enum):
+    """Method used to look up the carrier."""
+
+    MC_NUMBER = "mc_number"
+    DOT_NUMBER = "dot_number"
+    NAME = "name"
+
+
 class CarrierInfo(BaseModel):
     """Structured carrier information with eligibility status."""
 
-    mc_number: str
     allowed_to_operate: bool
+    eligibility: EligibilityStatus
+    lookup_method: LookupMethod
+    mc_number: int | None = None
     dot_number: int | None = None
     legal_name: str | None = None
     dba_name: str | None = None
     status_code: str | None = None
     common_authority_status: str | None = None
-    eligibility: EligibilityStatus
     ineligibility_reason: str | None = None
 
 
@@ -71,12 +80,12 @@ class FMCSAClient:
         return EligibilityStatus.ELIGIBLE, None
 
     @staticmethod
-    def _parse_carrier(carrier: dict) -> CarrierInfo:
+    def _parse_carrier(carrier: dict, lookup_method: LookupMethod) -> CarrierInfo:
         """Parse raw FMCSA carrier dict into a CarrierInfo model."""
         eligibility, reason = FMCSAClient._parse_eligibility(carrier)
 
         return CarrierInfo(
-            mc_number=str(carrier.get("mcNumber", "")),
+            mc_number=int(carrier["mcNumber"]) if carrier.get("mcNumber") else None,
             dot_number=carrier.get("dotNumber"),
             legal_name=carrier.get("legalName"),
             dba_name=carrier.get("dbaName"),
@@ -85,13 +94,14 @@ class FMCSAClient:
             common_authority_status=carrier.get("commonAuthorityStatus"),
             eligibility=eligibility,
             ineligibility_reason=reason,
+            lookup_method=lookup_method,
         )
 
-    async def lookup_by_mc_number(self, mc_number: str) -> CarrierInfo:
+    async def lookup_by_mc_number(self, mc_number: int) -> CarrierInfo:
         """Look up a carrier by MC number.
 
         Args:
-            mc_number (str): The MC number to look up.
+            mc_number (int): The MC number to look up.
 
         Returns:
             CarrierInfo: Structured carrier information including eligibility status.
@@ -107,11 +117,12 @@ class FMCSAClient:
                     allowed_to_operate=False,
                     eligibility=EligibilityStatus.NOT_FOUND,
                     ineligibility_reason=f"MC number {mc_number} not found in FMCSA database",
+                    lookup_method=LookupMethod.MC_NUMBER,
                 )
 
             response.raise_for_status()
-
             content = response.json()["content"]
+
             if not content:
                 logger.warning("FMCSA API returned empty results for MC number {}", mc_number)
                 return CarrierInfo(
@@ -119,9 +130,11 @@ class FMCSAClient:
                     allowed_to_operate=False,
                     eligibility=EligibilityStatus.NOT_FOUND,
                     ineligibility_reason=f"MC number {mc_number} not found in FMCSA database",
+                    lookup_method=LookupMethod.MC_NUMBER,
                 )
+
             carrier = content[0]["carrier"]
-            result = self._parse_carrier(carrier)
+            result = self._parse_carrier(carrier, LookupMethod.MC_NUMBER)
             logger.debug("MC number {} lookup result: eligibility={}", mc_number, result.eligibility)
             return result
 
@@ -132,6 +145,7 @@ class FMCSAClient:
                 allowed_to_operate=False,
                 eligibility=EligibilityStatus.API_ERROR,
                 ineligibility_reason="FMCSA API timed out — please try again",
+                lookup_method=LookupMethod.MC_NUMBER,
             )
         except httpx.HTTPError as e:
             logger.error("FMCSA API error for MC number {}: {}", mc_number, e)
@@ -140,15 +154,79 @@ class FMCSAClient:
                 allowed_to_operate=False,
                 eligibility=EligibilityStatus.API_ERROR,
                 ineligibility_reason="FMCSA API unavailable — please try again later",
+                lookup_method=LookupMethod.MC_NUMBER,
+            )
+
+    async def lookup_by_dot_number(self, dot_number: int) -> CarrierInfo:
+        """Look up a carrier by USDOT number.
+
+        Carriers registered after October 2025 no longer receive MC numbers
+        and must be looked up by their USDOT number instead.
+
+        Args:
+            dot_number (int): The USDOT number to look up.
+
+        Returns:
+            CarrierInfo: Structured carrier information including eligibility status.
+        """
+        logger.debug("Looking up carrier by USDOT number: {}", dot_number)
+        try:
+            response = await self.client.get(f"/{dot_number}")
+
+            if response.status_code == 404:
+                logger.info("USDOT number {} not found in FMCSA database", dot_number)
+                return CarrierInfo(
+                    dot_number=dot_number,
+                    allowed_to_operate=False,
+                    eligibility=EligibilityStatus.NOT_FOUND,
+                    ineligibility_reason=f"USDOT number {dot_number} not found in FMCSA database",
+                    lookup_method=LookupMethod.DOT_NUMBER,
+                )
+
+            response.raise_for_status()
+            content = response.json().get("content", {})
+            carrier = content.get("carrier", {})
+
+            if not carrier:
+                logger.warning("FMCSA API returned empty results for USDOT number {}", dot_number)
+                return CarrierInfo(
+                    dot_number=int(dot_number),
+                    allowed_to_operate=False,
+                    eligibility=EligibilityStatus.NOT_FOUND,
+                    ineligibility_reason=f"USDOT number {dot_number} not found in FMCSA database",
+                    lookup_method=LookupMethod.DOT_NUMBER,
+                )
+
+            result = self._parse_carrier(carrier, LookupMethod.DOT_NUMBER)
+            logger.debug("USDOT number {} lookup result: eligibility={}", dot_number, result.eligibility)
+            return result
+
+        except httpx.TimeoutException:
+            logger.warning("FMCSA API timed out for USDOT number {}", dot_number)
+            return CarrierInfo(
+                dot_number=int(dot_number),
+                allowed_to_operate=False,
+                eligibility=EligibilityStatus.API_ERROR,
+                ineligibility_reason="FMCSA API timed out — please try again",
+                lookup_method=LookupMethod.DOT_NUMBER,
+            )
+        except httpx.HTTPError as e:
+            logger.error("FMCSA API error for USDOT number {}: {}", dot_number, e)
+            return CarrierInfo(
+                dot_number=int(dot_number),
+                allowed_to_operate=False,
+                eligibility=EligibilityStatus.API_ERROR,
+                ineligibility_reason="FMCSA API unavailable — please try again later",
+                lookup_method=LookupMethod.DOT_NUMBER,
             )
 
     async def lookup_by_name(self, name: str) -> list[CarrierInfo]:
         """Look up carriers by name.
 
-         Note:
-             This method may return multiple carriers if the name is not unique.
-             The caller should confirm which carrier is correct before proceeding
-             with any actions.
+        Note:
+            This method may return multiple carriers if the name is not unique.
+            The caller should confirm which carrier is correct before proceeding
+            with any actions.
 
         Args:
             name (str): The carrier name to search for.
@@ -167,7 +245,7 @@ class FMCSAClient:
             response.raise_for_status()
             carriers = response.json()["content"]["listCarrierBasics"]
             logger.debug("Name lookup '{}' returned {} carrier(s)", name, len(carriers))
-            return [FMCSAClient._parse_carrier(c["carrier"]) for c in carriers]
+            return [FMCSAClient._parse_carrier(c["carrier"], LookupMethod.NAME) for c in carriers]
 
         except httpx.TimeoutException:
             logger.warning("FMCSA API timed out for name lookup '{}'", name)

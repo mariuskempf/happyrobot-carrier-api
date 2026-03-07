@@ -55,10 +55,11 @@ Note: Before running `bootstrap.sh`, ensure all required Azure resource provider
    terraform apply
    ```
 
-# FCSMA API
+# FMCSA API
 
-- [FCSMA - Federal Motor Carrier Safety Administration](https://mobile.fmcsa.dot.gov/QCDevsite/)
-- [FCSMA - API Documentation](https://mobile.fmcsa.dot.gov/QCDevsite/docs/getStarted)
+- [FMCSA - Federal Motor Carrier Safety Administration](https://mobile.fmcsa.dot.gov/QCDevsite/)
+- [FMCSA - API Documentation](https://mobile.fmcsa.dot.gov/QCDevsite/docs/getStarted)
+- [FMCSA - SAFER System](https://safer.fmcsa.dot.gov/CompanySnapshot.aspx)
 
 API elements considered relevant regarding eligibility of a carrier:
 
