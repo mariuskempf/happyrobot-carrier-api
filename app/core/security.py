@@ -1,26 +1,24 @@
 """Authentication utilities for the HappyRobot Carrier API."""
 
 from fastapi import HTTPException, Security, status
-from fastapi.security import APIKeyHeader, APIKeyQuery
+from fastapi.security import APIKeyHeader
 
 from app.core.config import get_settings
 
-API_KEY_QUERY = APIKeyQuery(name="api_key", auto_error=False)
-API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
+# HappyRobot sends: Authorization: ApiKey <key>
+# Swagger UI sends the raw key directly (strips the scheme)
+AUTHORIZATION_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
 
-async def verify_api_key(
-    api_key_header: str = Security(API_KEY_HEADER),
-    api_key_query: str = Security(API_KEY_QUERY),
-) -> str:
+async def verify_api_key(authorization: str = Security(AUTHORIZATION_HEADER)) -> str:
     """Dependency function to verify the API key provided.
 
-    Note: It checks for the API key in either the X-API-Key header or
-    the api_key query parameter.
+    Handles two formats:
+    - HappyRobot platform: Authorization: ApiKey <key>  -> parsed, prefix stripped
+    - Swagger UI:          Authorization: <key>         -> used as-is
 
     Args:
-        api_key_header (str): The API key provided in the X-API-Key header.
-        api_key_query (str): The API key provided in the api_key query parameter.
+        authorization (str): The full Authorization header value.
 
     Raises:
         HTTPException: If the API key is missing or invalid.
@@ -29,13 +27,20 @@ async def verify_api_key(
         str: The valid API key.
     """
     settings = get_settings()
+    expected = settings.api_key.get_secret_value()
 
-    api_key = api_key_header or api_key_query
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API key",
+            headers={"WWW-Authenticate": "ApiKey"},
+        )
 
-    print(api_key)
-    print(settings.api_key.get_secret_value())
+    # Strip "ApiKey " prefix if present (HappyRobot), otherwise use raw value (Swagger)
+    scheme, _, key = authorization.partition(" ")
+    api_key = key if scheme == "ApiKey" and key else authorization
 
-    if not api_key or api_key != settings.api_key.get_secret_value():
+    if api_key != expected:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing API key",
