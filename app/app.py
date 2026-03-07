@@ -8,7 +8,7 @@ from loguru import logger
 
 from app.core.config import Settings
 from app.core.security import verify_api_key
-from app.routers import demo
+from app.routers import carriers
 
 # from app.routers import calls, carriers, loads, negotiation
 
@@ -56,14 +56,25 @@ def create_app(settings: Settings) -> FastAPI:
 
     # --- Routers ---
     # All business routes are protected by API key auth
+    app.include_router(carriers.router, prefix="/carriers", tags=["Carriers"], dependencies=[Depends(verify_api_key)])
 
-    # app.include_router(carriers.router, prefix="/carriers", tags=["Carriers"], **protected)
     # app.include_router(loads.router, prefix="/loads", tags=["Loads"], **protected)
     # app.include_router(negotiation.router, prefix="/negotiation", tags=["Negotiation"], **protected)
     # app.include_router(calls.router, prefix="/calls", tags=["Calls"], **protected)
-    app.include_router(demo.router, prefix="/demo", tags=["Demo"], dependencies=[Depends(verify_api_key)])
 
-    # Health check — intentionally unprotected so HappyRobot can ping it
+    @app.get("/")
+    async def root():
+        return {
+            "service": settings.app_name,
+            "version": settings.version,
+            "docs": "/docs",
+            "health": "/health",
+            "ready": "/ready",
+        }
+
+    # Observability endpoints (health and readiness)
+    # Note: health and readiness endpoints are not protected by API key
+
     @app.get("/health", tags=["Observability"])
     def health():
         """Health check endpoint."""
@@ -73,7 +84,7 @@ def create_app(settings: Settings) -> FastAPI:
             "env": settings.env,
         }
 
-    @app.get("/health", tags=["Observability"])
+    @app.get("/ready", tags=["Observability"])
     def ready():
         """Readiness check endpoint."""
         return {
