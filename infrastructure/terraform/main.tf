@@ -68,9 +68,9 @@ resource "azurerm_key_vault" "main" {
   }
 }
 
-resource "azurerm_key_vault_secret" "fmcsa_api_key" {
+resource "azurerm_key_vault_secret" "fmcsa__api_key" {
   name         = "fmcsa-api-key"
-  value        = var.fmcsa_api_key
+  value        = var.fmcsa__api_key
   key_vault_id = azurerm_key_vault.main.id
 }
 
@@ -138,7 +138,7 @@ resource "azurerm_container_app" "main" {
 
   secret {
     name  = "fmcsa-api-key"
-    value = azurerm_key_vault_secret.fmcsa_api_key.value
+    value = azurerm_key_vault_secret.fmcsa__api_key.value
   }
 
   secret {
@@ -157,7 +157,7 @@ resource "azurerm_container_app" "main" {
       memory = "1Gi"
 
       env {
-        name        = "FMCSA_API_KEY"
+        name        = "FMCSA__API_KEY"
         secret_name = "fmcsa-api-key"
       }
 
@@ -177,6 +177,13 @@ resource "azurerm_container_app" "main" {
       percentage      = 100
       latest_revision = true
     }
+  }
+
+  lifecycle {
+    # Ignore image tag changes to leave tag updates to the CD pipeline
+    ignore_changes = [
+      template[0].container[0].image
+      ]
   }
 
   depends_on = [azurerm_role_assignment.acr_pull]

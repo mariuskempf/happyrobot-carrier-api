@@ -8,5 +8,7 @@ acr_name            = "happyrobotacr"
 key_vault_name      = "happyrobot-kv"
 app_name            = "happyrobot-api"
 
-fmcsa_api_key = "your-fmcsa-api-key-here"
-api_key       = "your-secure-api-key-here"
+fmcsa__api_key = "your-fmcsa-api-key-here"
+
+# Key to use application endpoints (used by HappyRobot platform)
+api_key = "your-secure-api-key-here"
