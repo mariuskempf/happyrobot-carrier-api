@@ -28,7 +28,7 @@ variable "app_name" {
   default     = "happyrobot-api"
 }
 
-variable "fmcsa_api_key" {
+variable "fmcsa__api_key" {
   description = "FMCSA API key"
   type        = string
   sensitive   = true
