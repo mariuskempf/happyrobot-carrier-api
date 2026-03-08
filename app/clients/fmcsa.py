@@ -154,7 +154,7 @@ class FMCSAClient:
                 )
 
             carrier = content[0]["carrier"]
-            result = self._parse_carrier(carrier, LookupMethod.MC_NUMBER)
+            result = self._parse_carrier(carrier, LookupMethod.MC_NUMBER, mc_number=mc_number)
             logger.debug("MC number {} lookup result: eligibility={}", mc_number, result.eligibility)
             return result
 
