@@ -15,7 +15,8 @@ class Load(BaseModel):
         pickup_datetime: Scheduled pickup date and time.
         delivery_datetime: Scheduled delivery date and time.
         equipment_type: Type of equipment required for the load.
-        loadboard_rate: Rate offered for the load on the load board.
+        loadboard_rate: Broker's opening rate offered to the carrier.
+        ceiling_rate: Maximum rate the broker will accept (110% of loadboard_rate).
         notes: Optional additional information about the load.
         weight: Total weight of the load in pounds.
         commodity_type: Type of commodity being transported.
@@ -32,6 +33,7 @@ class Load(BaseModel):
     delivery_datetime: str
     equipment_type: str
     loadboard_rate: float
+    ceiling_rate: float
     notes: Optional[str] = None
     weight: float
     commodity_type: str
