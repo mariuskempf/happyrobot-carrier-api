@@ -67,7 +67,14 @@ class FMCSAClient:
 
     @staticmethod
     def _parse_eligibility(carrier: dict) -> tuple[EligibilityStatus, str | None]:
-        """Evaluate carrier eligibility from FMCSA response fields."""
+        """Evaluate carrier eligibility from FMCSA response fields.
+
+        Args:
+            carrier (dict): Raw carrier data from FMCSA API response.
+
+        Returns:
+            tuple[EligibilityStatus, str | None]: Eligibility status and reason if ineligible.
+        """
         if carrier.get("allowedToOperate") != "Y":
             return EligibilityStatus.INELIGIBLE, "Carrier is not allowed to operate"
 
@@ -80,12 +87,25 @@ class FMCSAClient:
         return EligibilityStatus.ELIGIBLE, None
 
     @staticmethod
-    def _parse_carrier(carrier: dict, lookup_method: LookupMethod) -> CarrierInfo:
-        """Parse raw FMCSA carrier dict into a CarrierInfo model."""
+    def _parse_carrier(carrier: dict, lookup_method: LookupMethod, mc_number: int | None = None) -> CarrierInfo:
+        """Parse raw FMCSA carrier dict into a CarrierInfo model.
+
+        Note: mc_number is explicitly passed here because the API lookups won't return
+            the number as part of their response object. Irrelevant for DOT-lookups but
+            useful for MC lookups to confirm the carrier info corresponds to the correct MC number.
+
+        Args:
+            carrier (dict): Raw carrier data from FMCSA API response.
+            lookup_method (LookupMethod): The method used for looking up the carrier.
+            mc_number (int | None): The MC number used for lookup, if applicable.
+
+        Returns:
+            CarrierInfo: Structured carrier information including eligibility status.
+        """
         eligibility, reason = FMCSAClient._parse_eligibility(carrier)
 
         return CarrierInfo(
-            mc_number=int(carrier["mcNumber"]) if carrier.get("mcNumber") else None,
+            mc_number=mc_number,
             dot_number=carrier.get("dotNumber"),
             legal_name=carrier.get("legalName"),
             dba_name=carrier.get("dbaName"),

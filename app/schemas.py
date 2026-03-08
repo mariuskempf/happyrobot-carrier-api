@@ -6,7 +6,24 @@ from pydantic import BaseModel
 
 
 class Load(BaseModel):
-    """Schema representing a freight load listing."""
+    """Schema representing a freight load listing.
+
+    Attributes:
+        load_id: Unique identifier for the load.
+        origin: Starting location of the load.
+        destination: Ending location of the load.
+        pickup_datetime: Scheduled pickup date and time.
+        delivery_datetime: Scheduled delivery date and time.
+        equipment_type: Type of equipment required for the load.
+        loadboard_rate: Rate offered for the load on the load board.
+        notes: Optional additional information about the load.
+        weight: Total weight of the load in pounds.
+        commodity_type: Type of commodity being transported.
+        num_of_pieces: Number of pieces or items in the load.
+        miles: Total distance of the load in miles.
+        dimensions: Dimensions of the load (e.g., "LxWxH" format).
+        status: Current status of the load (e.g., "available", "booked", "in transit", "delivered").
+    """
 
     load_id: str
     origin: str

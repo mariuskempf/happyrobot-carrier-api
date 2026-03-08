@@ -55,25 +55,6 @@ Note: Before running `bootstrap.sh`, ensure all required Azure resource provider
    terraform apply
    ```
 
-# FMCSA API
-
-- [FMCSA - Federal Motor Carrier Safety Administration](https://mobile.fmcsa.dot.gov/QCDevsite/)
-- [FMCSA - API Documentation](https://mobile.fmcsa.dot.gov/QCDevsite/docs/getStarted)
-- [FMCSA - SAFER System](https://safer.fmcsa.dot.gov/CompanySnapshot.aspx)
-
-API elements considered relevant regarding eligibility of a carrier:
-
-| Field            | Description                                                         | Type       |
-| ---------------- | ------------------------------------------------------------------- | ---------- |
-| allowToOperate   | Indicates if a carrier is allowed to operate by law                 | Y or N     |
-| outOfService     | Carrier received out of service order and is not allowed to operate | Y or N     |
-| outOfServiceDate | The date the carrier received out of service order                  | MM/DD/YYYY |
-| complaintCount   | Number of customer complaints about the carrier received by FMCSA   | Number     |
-| dotNumber        | U.S. DOT registered number for the carrier                          | Number     |
-| mcNumber         | U.S. DOT registered motor carrier number for the carrier            | Number     |
-| legalName        | Legal registered name of the carrier                                | String     |
-| dbaName          | Alternative operating name of the carrier                           | String     |
-
 ## Local Development
 
 ...
