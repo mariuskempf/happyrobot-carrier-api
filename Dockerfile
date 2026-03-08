@@ -1,5 +1,5 @@
 # --- Stage 1: Builder ---
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 ARG UV_VERSION=0.9.25
 
@@ -42,6 +42,9 @@ RUN groupadd -g 10001 appuser && \
 # Copy only venv and app from the builder
 COPY --from=builder --chown=appuser:appuser /build/.venv /app/.venv
 COPY --from=builder --chown=appuser:appuser /build/app /app/app
+
+# Copy the pre-seeded database
+COPY --chown=appuser:appuser ./data /app/data
 
 USER appuser
 EXPOSE 8000

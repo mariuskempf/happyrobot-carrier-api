@@ -8,9 +8,7 @@ from loguru import logger
 
 from app.core.config import Settings
 from app.core.security import verify_api_key
-from app.routers import carriers
-
-# from app.routers import calls, carriers, loads, negotiation
+from app.routers import carriers, loads
 
 
 @asynccontextmanager
@@ -56,11 +54,8 @@ def create_app(settings: Settings) -> FastAPI:
 
     # --- Routers ---
     # All business routes are protected by API key auth
+    app.include_router(loads.router, prefix="/loads", tags=["Loads"], dependencies=[Depends(verify_api_key)])
     app.include_router(carriers.router, prefix="/carriers", tags=["Carriers"], dependencies=[Depends(verify_api_key)])
-
-    # app.include_router(loads.router, prefix="/loads", tags=["Loads"], **protected)
-    # app.include_router(negotiation.router, prefix="/negotiation", tags=["Negotiation"], **protected)
-    # app.include_router(calls.router, prefix="/calls", tags=["Calls"], **protected)
 
     @app.get("/")
     async def root():
