@@ -47,7 +47,7 @@ import math
 def calculate_area(radius: float) -> float:
     """Calculate the area of a circle given the radius.
 
-    Parameters:
+    Args:
       radius (float): The radius of the circle.
 
     Returns:
