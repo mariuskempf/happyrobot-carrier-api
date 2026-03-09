@@ -152,7 +152,10 @@ resource "azurerm_container_app" "main" {
 
     container {
       name   = var.app_name
-      image  = "${azurerm_container_registry.acr.login_server}/${var.app_name}:latest"
+      # Placeholder for initial provisioning — replaced by the CD pipeline on first deploy.
+      # The lifecycle block below ensures Terraform never reverts this after first apply.
+      # After initial deployment, the image and it's tag will be managed by the deployment pipeline
+      image  = "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
       cpu    = 0.5
       memory = "1Gi"
 
