@@ -1,6 +1,6 @@
 # Seed Loads — Acme Logistics
 
-The following table shows the dummy data created for this demo and stored in the SQLITE Database `data/loads.db`
+The following table shows the dummy data created for this demo and stored in the SQLITE Database `data/loads.db`.
 
 # Seed Loads — Acme Logistics
 
@@ -37,10 +37,10 @@ The following table shows the dummy data created for this demo and stored in the
 | LOAD029 | Denver, CO      | Albuquerque, NM    | Flatbed   | Concrete Pipes         | 449   | $720.00    | $792.00        | 2026-03-11 09:00 | 2026-03-11 19:00 | 36,000       | 8      | Straps provided         |
 | LOAD030 | Memphis, TN     | Birmingham, AL     | Flatbed   | Roofing Materials      | 210   | $480.00    | $528.00        | 2026-03-10 10:00 | 2026-03-10 16:00 | 40,000       | 100    | Tarping required        |
 
-Note: Use the VSC extension [SQLite Viewer](https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer) to visualize the actual `loads.db` and interact with it.
+> **Note:** Use the VSC extension [SQLite Viewer](https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer) to visualize the actual `loads.db` and interact with it.
 
 **Equipment Types Explained**
 
-- Dry Van - An enclosed box trailer — the standard truck you see everywhere. Used for general freight.
-- Reefer (Refrigerated) - An enclosed trailer with a built-in refrigerator. Used for anything that needs temperature control.
-- Flatbed - An open trailer with no sides or roof — just a flat platform. Used for oversized, heavy, or awkwardly shaped freight that can't fit in an enclosed trailer
+- **Dry Van** - An enclosed box trailer — the standard truck you see everywhere. Used for general freight.
+- **Reefer (Refrigerated)** - An enclosed trailer with a built-in refrigerator. Used for anything that needs temperature control.
+- **Flatbed** - An open trailer with no sides or roof — just a flat platform. Used for oversized, heavy, or awkwardly shaped freight that can't fit in an enclosed trailer
