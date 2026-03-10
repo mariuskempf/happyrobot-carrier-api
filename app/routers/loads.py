@@ -29,6 +29,28 @@ def search_loads(
     return get_all_loads(origin=origin, destination=destination, equipment_type=equipment_type)
 
 
+@router.get("/find", response_model=Load)
+def find_load(
+    origin: Optional[str] = Query(None),
+    destination: Optional[str] = Query(None),
+    equipment_type: Optional[str] = Query(None),
+):
+    """Find a single load matching the search criteria.
+
+    Args:
+        origin: Optional filter for load origin (case-insensitive, partial match).
+        destination: Optional filter for load destination (case-insensitive, partial match).
+        equipment_type: Optional filter for required equipment type (case-insensitive, partial match).
+
+    Returns:
+        The first matching load as an object, or 404 if none found.
+    """
+    results = get_all_loads(origin=origin, destination=destination, equipment_type=equipment_type)
+    if not results:
+        raise HTTPException(status_code=404, detail="No matching load found")
+    return results[0]
+
+
 @router.get("/{load_id}", response_model=Load)
 def get_load(load_id: str):
     """Get a single load by its ID
