@@ -94,14 +94,15 @@ All endpoints (except `/health` and `/ready`) require authentication via the `Au
 Authorization: ApiKey <your-api-key>
 ```
 
-| Method | Endpoint                            | Description                  |
-| ------ | ----------------------------------- | ---------------------------- |
-| `GET`  | `/health`                           | Health check                 |
-| `GET`  | `/ready`                            | Readiness check              |
-| `GET`  | `/carriers/verify/mc/{mc_number}`   | Verify carrier by MC number  |
-| `GET`  | `/carriers/verify/dot/{dot_number}` | Verify carrier by DOT number |
-| `GET`  | `/loads/search`                     | Search available loads       |
-| `GET`  | `/loads/{load_id}`                  | Get load by ID               |
+| Method | Endpoint                            | Description                           |
+| ------ | ----------------------------------- | ------------------------------------- |
+| `GET`  | `/health`                           | Health check                          |
+| `GET`  | `/ready`                            | Readiness check                       |
+| `GET`  | `/carriers/verify/mc/{mc_number}`   | Verify carrier by MC number           |
+| `GET`  | `/carriers/verify/dot/{dot_number}` | Verify carrier by DOT number          |
+| `GET`  | `/loads/search`                     | Search available loads                |
+| `GET`  | `/loads/find`                       | Find a single load by search criteria |
+| `GET`  | `/loads/{load_id}`                  | Get load by ID                        |
 
 ## Environment Variables
 
